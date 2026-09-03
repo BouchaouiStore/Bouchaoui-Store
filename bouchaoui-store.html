@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bouchaoui Store</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, sans-serif; background: #f5f6fa; }
+:root {
+  --blue: #1a6fc4; --blue-light: #e6f1fb; --blue-dark: #0c447c;
+  --white: #fff; --gray: #f5f6fa; --text: #1a1a2e;
+  --muted: #6b7280; --border: #dde3ee; --radius: 10px;
+}
+.store { background: var(--white); min-height: 100vh; }
+.nav { background: var(--blue); color: #fff; padding: 0 1rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
+.nav-brand { font-size: 18px; font-weight: 500; cursor: pointer; }
+.nav-actions { display: flex; align-items: center; gap: 10px; }
+.nav-btn { background: rgba(255,255,255,0.15); border: none; color: #fff; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 4px; }
+.nav-btn:hover { background: rgba(255,255,255,0.25); }
+.cart-badge { background: #ff4757; color: #fff; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center; font-weight: 500; }
+.lang-btn { background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 500; }
+.page { display: none; }
+.page.active { display: block; }
+.hero { background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%); color: #fff; padding: 3rem 1.5rem; text-align: center; }
+.hero h1 { font-size: 28px; font-weight: 500; margin-bottom: 10px; }
+.hero p { font-size: 16px; opacity: 0.85; margin-bottom: 1.5rem; }
+.hero-btn { background: #fff; color: var(--blue); border: none; padding: 12px 32px; border-radius: 28px; font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+.hero-btn:hover { background: var(--blue-light); }
+.section { padding: 1.5rem 1rem; }
+.section-title { font-size: 17px; font-weight: 500; color: var(--text); margin-bottom: 1rem; display: flex; align-items: center; gap: 6px; }
+.cats { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; flex-wrap: wrap; }
+.cat { background: var(--gray); border: 1px solid var(--border); border-radius: 20px; padding: 7px 16px; font-size: 14px; cursor: pointer; color: var(--text); transition: all 0.2s; white-space: nowrap; }
+.cat.active, .cat:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+.products { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; padding: 0 1rem 1rem; }
+.card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s; }
+.card:hover { transform: translateY(-2px); }
+.card-img { background: var(--blue-light); height: 120px; display: flex; align-items: center; justify-content: center; font-size: 44px; }
+.card-body { padding: 12px; }
+.card-name { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 6px; line-height: 1.3; }
+.card-price { font-size: 15px; color: var(--blue); font-weight: 500; margin-bottom: 10px; }
+.card-price small { font-size: 12px; color: var(--muted); text-decoration: line-through; margin-inline-start: 6px; }
+.add-btn { width: 100%; background: var(--blue); color: #fff; border: none; padding: 8px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: background 0.2s; }
+.add-btn:hover { background: var(--blue-dark); }
+.add-btn.added { background: #10b981; }
+.cart-page { padding: 1.5rem 1rem; max-width: 600px; margin: 0 auto; }
+.cart-header { font-size: 20px; font-weight: 500; margin-bottom: 1.5rem; }
+.cart-empty { text-align: center; padding: 3rem; color: var(--muted); font-size: 16px; }
+.cart-item { display: flex; align-items: center; gap: 12px; background: var(--gray); border-radius: var(--radius); padding: 12px; margin-bottom: 10px; }
+.cart-item-icon { font-size: 32px; width: 48px; text-align: center; }
+.cart-item-info { flex: 1; }
+.cart-item-name { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+.cart-item-price { font-size: 14px; color: var(--blue); }
+.qty-ctrl { display: flex; align-items: center; gap: 8px; }
+.qty-btn { background: var(--white); border: 1px solid var(--border); width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+.qty-btn:hover { background: var(--blue-light); }
+.remove-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 18px; padding: 4px; }
+.cart-summary { background: var(--gray); border-radius: var(--radius); padding: 1.2rem; margin-top: 1.2rem; }
+.summary-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; color: var(--text); }
+.summary-total { font-weight: 500; font-size: 17px; color: var(--blue); border-top: 1px solid var(--border); padding-top: 10px; margin-top: 6px; }
+.checkout-btn { width: 100%; background: var(--blue); color: #fff; border: none; padding: 14px; border-radius: var(--radius); font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 12px; transition: background 0.2s; }
+.checkout-btn:hover { background: var(--blue-dark); }
+.info-card { background: var(--gray); border-radius: var(--radius); padding: 1.2rem; margin-bottom: 12px; }
+.info-card h3 { font-size: 15px; font-weight: 500; margin-bottom: 8px; color: var(--blue); }
+.info-card p, .info-card li { font-size: 14px; color: var(--text); line-height: 1.8; }
+.info-card ul { padding-inline-start: 18px; }
+.contact-form input, .contact-form textarea { width: 100%; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 14px; margin-bottom: 10px; color: var(--text); outline: none; }
+.contact-form input:focus, .contact-form textarea:focus { border-color: var(--blue); }
+.contact-form textarea { height: 100px; resize: none; }
+.send-btn { width: 100%; background: var(--blue); color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+.send-btn:hover { background: var(--blue-dark); }
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
+.modal-bg.open { display: flex; }
+.modal { background: var(--white); border-radius: 16px; padding: 2rem; width: 100%; max-width: 400px; }
+.modal h3 { font-size: 18px; font-weight: 500; margin-bottom: 1.2rem; }
+.modal input { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 14px; margin-bottom: 10px; outline: none; }
+.modal input:focus { border-color: var(--blue); }
+.modal-footer { display: flex; gap: 10px; margin-top: 14px; }
+.modal-footer button { flex: 1; padding: 12px; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500; }
+.btn-cancel { background: var(--gray); border: 1px solid var(--border); color: var(--text); }
+.btn-pay { background: var(--blue); color: #fff; border: none; }
+.btn-pay:hover { background: var(--blue-dark); }
+.success-msg { display: none; text-align: center; padding: 1rem; }
+.success-msg .check { font-size: 52px; margin-bottom: 12px; }
+.success-msg p { font-size: 15px; color: var(--text); margin-bottom: 1rem; }
+.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #10b981; color: #fff; padding: 10px 24px; border-radius: 28px; font-size: 14px; z-index: 300; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+.toast.show { opacity: 1; }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); border-top: 1px solid var(--border); display: flex; z-index: 100; }
+.bnav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 8px 4px 6px; cursor: pointer; font-size: 11px; color: var(--muted); border: none; background: none; transition: color 0.2s; }
+.bnav-item.active { color: var(--blue); }
+.bnav-item i { font-size: 22px; margin-bottom: 2px; }
+.spacer { height: 70px; }
+
+/* ===== STRIPE SECTION ===== */
+.stripe-section { background: var(--blue-light); border: 1px solid #b5d4f4; border-radius: var(--radius); padding: 1rem; margin-bottom: 12px; }
+.stripe-section h3 { color: var(--blue-dark); font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+.stripe-section p { font-size: 13px; color: var(--text); line-height: 1.7; }
+.stripe-section a { color: var(--blue); }
+
+@media (min-width: 600px) {
+  .products { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+  .cart-page { padding: 2rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="store" id="app">
+  <nav class="nav">
+    <span class="nav-brand" onclick="goPage('home')">🛒 Bouchaoui Store</span>
+    <div class="nav-actions">
+      <button class="lang-btn" onclick="toggleLang()">EN</button>
+      <button class="nav-btn" onclick="goPage('cart')">
+        <i class="ti ti-shopping-cart"></i>
+        <span class="cart-badge" id="cart-count">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <h1 id="hero-title">تسوّق بكل سهولة 🎉</h1>
+      <p id="hero-sub">أفضل المنتجات بأسعار تنافسية — شحن سريع لكل مكان</p>
+      <button class="hero-btn" onclick="goPage('products')" id="hero-cta">تسوق الآن</button>
+    </div>
+    <div class="section">
+      <div class="section-title"><i class="ti ti-category"></i> <span id="cat-title">الأقسام</span></div>
+      <div class="cats" id="cats-home"></div>
+    </div>
+    <div class="section">
+      <div class="section-title"><i class="ti ti-flame"></i> <span id="feat-title">منتجات مميزة</span></div>
+    </div>
+    <div class="products" id="featured-products"></div>
+    <div class="spacer"></div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="page" id="page-products">
+    <div class="section">
+      <div class="section-title"><i class="ti ti-layout-grid"></i> <span id="all-title">كل المنتجات</span></div>
+      <div class="cats" id="cats-filter"></div>
+    </div>
+    <div class="products" id="all-products"></div>
+    <div class="spacer"></div>
+  </div>
+
+  <!-- CART -->
+  <div class="page" id="page-cart">
+    <div class="cart-page">
+      <div class="cart-header" id="cart-title">🛒 سلة التسوق</div>
+      <div id="cart-items"></div>
+      <div id="cart-summary-box"></div>
+    </div>
+    <div class="spacer"></div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="page" id="page-about">
+    <div class="section">
+      <div class="section-title" id="about-title">🏪 عن المتجر</div>
+      <div class="info-card">
+        <h3 id="about-h1">من نحن</h3>
+        <p id="about-p1">Bouchaoui Store متجر إلكتروني متكامل يوفر أفضل المنتجات في مختلف الفئات بأسعار تنافسية وخدمة توصيل موثوقة.</p>
+      </div>
+      <div class="info-card">
+        <h3 id="about-h2">لماذا نحن؟</h3>
+        <ul id="about-list">
+          <li>منتجات عالية الجودة ومضمونة</li>
+          <li>أسعار تنافسية وعروض دورية</li>
+          <li>شحن سريع وآمن</li>
+          <li>دعم عملاء متاح على مدار الساعة</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h3 id="about-h3">الدفع الآمن</h3>
+        <p id="about-p3">نقبل الدفع عبر Stripe — بطاقات فيزا، ماستركارد، وApple Pay. جميع المعاملات مشفرة وآمنة بنسبة 100%.</p>
+      </div>
+      <div class="stripe-section">
+        <h3>💡 ملاحظة للمطور — ربط Stripe</h3>
+        <p>لتفعيل الدفع الحقيقي: سجّل في <a href="https://stripe.com" target="_blank">stripe.com</a> → احصل على Publishable Key → استبدل <code>pk_test_YOUR_KEY</code> في كود الـ checkout بمفتاحك. الدفع حالياً في وضع تجريبي.</p>
+      </div>
+    </div>
+    <div class="spacer"></div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="page" id="page-contact">
+    <div class="section">
+      <div class="section-title" id="contact-title">📬 تواصل معنا</div>
+      <div class="info-card">
+        <h3>📧 <span id="contact-email-lbl">البريد الإلكتروني</span></h3>
+        <p>contact@bouchaouistore.com</p>
+      </div>
+      <div class="info-card">
+        <h3>📱 <span id="contact-phone-lbl">واتساب</span></h3>
+        <p>+213 XX XX XX XX</p>
+      </div>
+      <div class="contact-form">
+        <input id="cf-name" placeholder="الاسم" />
+        <input id="cf-email" placeholder="البريد الإلكتروني" type="email" />
+        <textarea id="cf-msg" placeholder="رسالتك..."></textarea>
+        <button class="send-btn" onclick="sendMsg()" id="send-btn-txt">إرسال الرسالة</button>
+      </div>
+    </div>
+    <div class="spacer"></div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="bnav-item active" onclick="goPage('home')" id="bnav-home">
+      <i class="ti ti-home"></i><span id="bnav-home-lbl">الرئيسية</span>
+    </button>
+    <button class="bnav-item" onclick="goPage('products')" id="bnav-products">
+      <i class="ti ti-layout-grid"></i><span id="bnav-prod-lbl">المنتجات</span>
+    </button>
+    <button class="bnav-item" onclick="goPage('cart')" id="bnav-cart">
+      <i class="ti ti-shopping-cart"></i><span id="bnav-cart-lbl">السلة</span>
+    </button>
+    <button class="bnav-item" onclick="goPage('about')" id="bnav-about">
+      <i class="ti ti-info-circle"></i><span id="bnav-about-lbl">عننا</span>
+    </button>
+    <button class="bnav-item" onclick="goPage('contact')" id="bnav-contact">
+      <i class="ti ti-mail"></i><span id="bnav-contact-lbl">تواصل</span>
+    </button>
+  </nav>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-bg" id="checkout-modal">
+  <div class="modal">
+    <div id="checkout-form">
+      <h3 id="checkout-title">إتمام الطلب</h3>
+      <input id="co-name" placeholder="الاسم الكامل" />
+      <input id="co-phone" placeholder="رقم الهاتف" type="tel" />
+      <input id="co-addr" placeholder="العنوان" />
+      <input id="co-card" placeholder="4242 4242 4242 4242 (اختباري)" />
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeCheckout()" id="cancel-btn">إلغاء</button>
+        <button class="btn-pay" onclick="payNow()" id="pay-btn">ادفع الآن</button>
+      </div>
+    </div>
+    <div class="success-msg" id="success-msg">
+      <div class="check">✅</div>
+      <p id="success-txt">تم الطلب بنجاح! سنتواصل معك قريباً.</p>
+      <button class="send-btn" onclick="closeCheckout()" id="close-ok">موافق</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const AR = {
+  heroTitle:'تسوّق بكل سهولة 🎉', heroSub:'أفضل المنتجات بأسعار تنافسية — شحن سريع لكل مكان', heroCta:'تسوق الآن',
+  catTitle:'الأقسام', featTitle:'منتجات مميزة', allTitle:'كل المنتجات',
+  cartTitle:'🛒 سلة التسوق', cartEmpty:'السلة فارغة — أضف بعض المنتجات!',
+  aboutTitle:'🏪 عن المتجر', aboutH1:'من نحن',
+  aboutP1:'Bouchaoui Store متجر إلكتروني متكامل يوفر أفضل المنتجات في مختلف الفئات بأسعار تنافسية وخدمة توصيل موثوقة.',
+  aboutH2:'لماذا نحن؟', aboutList:['منتجات عالية الجودة ومضمونة','أسعار تنافسية وعروض دورية','شحن سريع وآمن','دعم عملاء متاح على مدار الساعة'],
+  aboutH3:'الدفع الآمن', aboutP3:'نقبل الدفع عبر Stripe — بطاقات فيزا، ماستركارد، وApple Pay. جميع المعاملات مشفرة وآمنة.',
+  contactTitle:'📬 تواصل معنا', contactEmailLbl:'البريد الإلكتروني', contactPhoneLbl:'واتساب',
+  sendBtn:'إرسال الرسالة', checkoutTitle:'إتمام الطلب', cancelBtn:'إلغاء', payBtn:'ادفع الآن',
+  successTxt:'تم الطلب بنجاح! سنتواصل معك قريباً.', closeOk:'موافق',
+  subtotal:'المجموع', shipping:'الشحن', free:'مجاني', total:'الإجمالي', checkout:'إتمام الشراء',
+  addCart:'أضف للسلة', added:'أضيف ✓', toastAdded:'تمت الإضافة للسلة', toastMsg:'تم إرسال رسالتك!',
+  allCats:'الكل', home:'الرئيسية', products:'المنتجات', cart:'السلة', about:'عننا', contact:'تواصل',
+  dir:'rtl', langBtn:'EN'
+};
+const EN = {
+  heroTitle:'Shop with ease 🎉', heroSub:'Best products at competitive prices — fast shipping everywhere', heroCta:'Shop Now',
+  catTitle:'Categories', featTitle:'Featured Products', allTitle:'All Products',
+  cartTitle:'🛒 Shopping Cart', cartEmpty:'Your cart is empty — add some products!',
+  aboutTitle:'🏪 About Us', aboutH1:'Who we are',
+  aboutP1:'Bouchaoui Store is a complete e-commerce platform offering the best products across all categories at competitive prices with reliable delivery.',
+  aboutH2:'Why us?', aboutList:['High quality, guaranteed products','Competitive prices & regular offers','Fast & secure shipping','24/7 customer support'],
+  aboutH3:'Secure payments', aboutP3:'We accept payments via Stripe — Visa, Mastercard, and Apple Pay. All transactions are encrypted and 100% secure.',
+  contactTitle:'📬 Contact Us', contactEmailLbl:'Email', contactPhoneLbl:'WhatsApp',
+  sendBtn:'Send Message', checkoutTitle:'Complete Order', cancelBtn:'Cancel', payBtn:'Pay Now',
+  successTxt:'Order placed! We will contact you soon.', closeOk:'OK',
+  subtotal:'Subtotal', shipping:'Shipping', free:'Free', total:'Total', checkout:'Checkout',
+  addCart:'Add to Cart', added:'Added ✓', toastAdded:'Added to cart', toastMsg:'Message sent!',
+  allCats:'All', home:'Home', products:'Products', cart:'Cart', about:'About', contact:'Contact',
+  dir:'ltr', langBtn:'عر'
+};
+
+let lang = AR, isAr = true, cart = [], activeFilter = 'all';
+
+const products = [
+  {id:1,emoji:'📱',name:{ar:'هاتف ذكي',en:'Smartphone'},cat:'electronics',price:25000,oldPrice:30000},
+  {id:2,emoji:'💻',name:{ar:'لابتوب',en:'Laptop'},cat:'electronics',price:85000,oldPrice:95000},
+  {id:3,emoji:'👟',name:{ar:'حذاء رياضي',en:'Sneakers'},cat:'fashion',price:4500,oldPrice:5500},
+  {id:4,emoji:'👕',name:{ar:'قميص عصري',en:'T-Shirt'},cat:'fashion',price:1800,oldPrice:2200},
+  {id:5,emoji:'🎮',name:{ar:'جهاز ألعاب',en:'Game Console'},cat:'electronics',price:55000,oldPrice:60000},
+  {id:6,emoji:'🏠',name:{ar:'ديكور منزلي',en:'Home Decor'},cat:'home',price:3200,oldPrice:3800},
+  {id:7,emoji:'📚',name:{ar:'كتاب تعليمي',en:'Textbook'},cat:'books',price:900,oldPrice:1200},
+  {id:8,emoji:'⌚',name:{ar:'ساعة ذكية',en:'Smart Watch'},cat:'electronics',price:12000,oldPrice:15000},
+  {id:9,emoji:'🧴',name:{ar:'عناية بالبشرة',en:'Skincare Set'},cat:'beauty',price:2800,oldPrice:3500},
+  {id:10,emoji:'🎒',name:{ar:'حقيبة ظهر',en:'Backpack'},cat:'fashion',price:5500,oldPrice:6500},
+];
+
+const cats = [
+  {id:'all',ar:'الكل',en:'All'},{id:'electronics',ar:'إلكترونيات',en:'Electronics'},
+  {id:'fashion',ar:'موضة',en:'Fashion'},{id:'home',ar:'منزل',en:'Home'},
+  {id:'books',ar:'كتب',en:'Books'},{id:'beauty',ar:'جمال',en:'Beauty'},
+];
+
+const fmt = n => n.toLocaleString();
+
+function renderCats(id, fn, active) {
+  document.getElementById(id).innerHTML = cats.map(c =>
+    `<button class="cat${c.id===active?' active':''}" onclick="${fn}('${c.id}')">${isAr?c.ar:c.en}</button>`
+  ).join('');
+}
+
+function renderProducts(id, filter) {
+  const list = filter==='all' ? products : products.filter(p=>p.cat===filter);
+  document.getElementById(id).innerHTML = list.map(p => {
+    const inCart = cart.find(c=>c.id===p.id);
+    return `<div class="card">
+      <div class="card-img">${p.emoji}</div>
+      <div class="card-body">
+        <div class="card-name">${isAr?p.name.ar:p.name.en}</div>
+        <div class="card-price">${fmt(p.price)} DZ <small>${fmt(p.oldPrice)} DZ</small></div>
+        <button class="add-btn${inCart?' added':''}" onclick="addToCart(${p.id})">
+          ${inCart?lang.added:lang.addCart}
+        </button>
+      </div></div>`;
+  }).join('');
+}
+
+function renderFeatured() {
+  document.getElementById('featured-products').innerHTML = products.slice(0,4).map(p => {
+    const inCart = cart.find(c=>c.id===p.id);
+    return `<div class="card">
+      <div class="card-img">${p.emoji}</div>
+      <div class="card-body">
+        <div class="card-name">${isAr?p.name.ar:p.name.en}</div>
+        <div class="card-price">${fmt(p.price)} DZ <small>${fmt(p.oldPrice)} DZ</small></div>
+        <button class="add-btn${inCart?' added':''}" onclick="addToCart(${p.id})">
+          ${inCart?lang.added:lang.addCart}
+        </button>
+      </div></div>`;
+  }).join('');
+}
+
+function addToCart(id) {
+  const p = products.find(x=>x.id===id);
+  const ex = cart.find(x=>x.id===id);
+  if(ex) ex.qty++; else cart.push({...p,qty:1});
+  updateCartCount();
+  showToast(lang.toastAdded + ': ' + (isAr?p.name.ar:p.name.en));
+  renderFeatured();
+  renderProducts('all-products', activeFilter);
+}
+
+function updateCartCount() {
+  document.getElementById('cart-count').textContent = cart.reduce((s,i)=>s+i.qty,0);
+}
+
+function renderCart() {
+  const el = document.getElementById('cart-items');
+  const sb = document.getElementById('cart-summary-box');
+  if(!cart.length) { el.innerHTML=`<div class="cart-empty">${lang.cartEmpty}</div>`; sb.innerHTML=''; return; }
+  el.innerHTML = cart.map(item=>`
+    <div class="cart-item">
+      <div class="cart-item-icon">${item.emoji}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${isAr?item.name.ar:item.name.en}</div>
+        <div class="cart-item-price">${fmt(item.price*item.qty)} DZ</div>
+      </div>
+      <div class="qty-ctrl">
+        <button class="qty-btn" onclick="changeQty(${item.id},-1)">−</button>
+        <span>${item.qty}</span>
+        <button class="qty-btn" onclick="changeQty(${item.id},1)">+</button>
+      </div>
+      <button class="remove-btn" onclick="removeItem(${item.id})">🗑</button>
+    </div>`).join('');
+  const sub = cart.reduce((s,i)=>s+(i.price*i.qty),0);
+  sb.innerHTML=`<div class="cart-summary">
+    <div class="summary-row"><span>${lang.subtotal}</span><span>${fmt(sub)} DZ</span></div>
+    <div class="summary-row"><span>${lang.shipping}</span><span>${lang.free}</span></div>
+    <div class="summary-row summary-total"><span>${lang.total}</span><span>${fmt(sub)} DZ</span></div>
+    <button class="checkout-btn" onclick="openCheckout()">${lang.checkout}</button>
+  </div>`;
+}
+
+function changeQty(id, d) {
+  const item = cart.find(x=>x.id===id);
+  if(!item) return;
+  item.qty += d;
+  if(item.qty<=0) cart = cart.filter(x=>x.id!==id);
+  updateCartCount(); renderCart(); renderFeatured(); renderProducts('all-products',activeFilter);
+}
+
+function removeItem(id) {
+  cart = cart.filter(x=>x.id!==id);
+  updateCartCount(); renderCart(); renderFeatured(); renderProducts('all-products',activeFilter);
+}
+
+function filterCat(catId) {
+  activeFilter = catId;
+  renderCats('cats-filter','filterCat',catId);
+  renderProducts('all-products',catId);
+}
+
+function goPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const bn = document.getElementById('bnav-'+name);
+  if(bn) bn.classList.add('active');
+  if(name==='cart') renderCart();
+  if(name==='home') { renderFeatured(); renderCats('cats-home','goPage_home','all'); }
+  if(name==='products') { renderProducts('all-products',activeFilter); renderCats('cats-filter','filterCat',activeFilter); }
+}
+
+function goPage_home() { goPage('home'); }
+
+function openCheckout() {
+  document.getElementById('checkout-modal').classList.add('open');
+  document.getElementById('checkout-form').style.display='block';
+  document.getElementById('success-msg').style.display='none';
+}
+
+function closeCheckout() {
+  document.getElementById('checkout-modal').classList.remove('open');
+  if(document.getElementById('success-msg').style.display!=='none') {
+    cart=[]; updateCartCount(); renderCart(); renderFeatured(); renderProducts('all-products',activeFilter);
+  }
+}
+
+function payNow() {
+  document.getElementById('checkout-form').style.display='none';
+  document.getElementById('success-msg').style.display='block';
+}
+
+function toggleLang() {
+  isAr = !isAr; lang = isAr ? AR : EN;
+  document.documentElement.dir = lang.dir;
+  document.documentElement.lang = isAr ? 'ar' : 'en';
+  applyLang();
+}
+
+function applyLang() {
+  const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  set('hero-title',lang.heroTitle); set('hero-sub',lang.heroSub); set('hero-cta',lang.heroCta);
+  set('cat-title',lang.catTitle); set('feat-title',lang.featTitle); set('all-title',lang.allTitle);
+  set('cart-title',lang.cartTitle); set('about-title',lang.aboutTitle);
+  set('about-h1',lang.aboutH1); set('about-p1',lang.aboutP1);
+  set('about-h2',lang.aboutH2); set('about-h3',lang.aboutH3); set('about-p3',lang.aboutP3);
+  const ul = document.getElementById('about-list');
+  if(ul) ul.innerHTML = lang.aboutList.map(i=>`<li>${i}</li>`).join('');
+  set('contact-title',lang.contactTitle); set('contact-email-lbl',lang.contactEmailLbl);
+  set('contact-phone-lbl',lang.contactPhoneLbl); set('send-btn-txt',lang.sendBtn);
+  set('checkout-title',lang.checkoutTitle); set('cancel-btn',lang.cancelBtn);
+  set('pay-btn',lang.payBtn); set('success-txt',lang.successTxt); set('close-ok',lang.closeOk);
+  set('bnav-home-lbl',lang.home); set('bnav-prod-lbl',lang.products);
+  set('bnav-cart-lbl',lang.cart); set('bnav-about-lbl',lang.about); set('bnav-contact-lbl',lang.contact);
+  document.querySelector('.lang-btn').textContent = lang.langBtn;
+  document.getElementById('cf-name').placeholder = isAr?'الاسم':'Your name';
+  document.getElementById('cf-email').placeholder = isAr?'البريد الإلكتروني':'Email';
+  document.getElementById('cf-msg').placeholder = isAr?'رسالتك...':'Your message...';
+  renderCats('cats-home','goPage_home','all');
+  renderFeatured();
+  renderCats('cats-filter','filterCat',activeFilter);
+  renderProducts('all-products',activeFilter);
+  renderCart();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function sendMsg() {
+  showToast(lang.toastMsg);
+  ['cf-name','cf-email','cf-msg'].forEach(id=>document.getElementById(id).value='');
+}
+
+goPage('home');
+</script>
+</body>
+</html>
